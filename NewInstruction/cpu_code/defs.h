@@ -9,7 +9,7 @@
 #ifndef _DEFS_
 #define _DEFS_
 
-/* Definicoes gerais das instrucoes (op code 'interno') */
+/* General instruction definitions (internal opcodes). */
 
 #define LOAD_CODE               1
 #define STORE_CODE              2
@@ -324,7 +324,7 @@
 #define CLEARC_STR              "CLEARC"
 
 
-/* Definicoes dos codigos dos registradores */
+/* Register code definitions. */
 #define REG0_CODE 0
 #define REG1_CODE 1
 #define REG2_CODE 2
@@ -337,7 +337,7 @@
 #define SP_CODE 9
 /* #define REGZ_CODE 9 */
 
-/* Definicoes dos registradores (binarios em strings) */
+/* Register definitions (binary strings). */
 #define REG0 "000"
 #define REG1 "001"
 #define REG2 "010"
@@ -347,7 +347,7 @@
 #define REG6 "110"
 #define REG7 "111"
 
-/* Definicoes das strings de registradores */
+/* Register name definitions. */
 #define REG0_STR "R0"
 #define REG1_STR "R1"
 #define REG2_STR "R2"
@@ -362,11 +362,10 @@
 
 /*
 
-  Modelo de memoria
+  Memory model
 
-  Obs.: Este modelo nao precisa ser seguido, mas a
-  pseudo-instrucao 'alloc' nao devera ser usada
-  neste caso.
+  Note: This model does not have to be followed, but the 'alloc'
+  pseudo-instruction must not be used in that case.
 
   [00000 - 16384] : Programa e variaveis (16kw 32kb)
   [16385 - 24576] : Dados estaticos (8kw 16kb)
@@ -384,33 +383,33 @@
 
 */
 
-/* Definicoes da memoria */
-/* Final do espaco de programa */
+/* Memory definitions. */
+/* End of program space. */
 #define END_PROGRAM_END                 16384
-/* Inicio do espaco de dados estativos (alloc) */
+/* Start of static data space (alloc). */
 #define END_STATIC_DATA_START           16385
-/* Final do espaco de dados estaticos */
+/* End of static data space. */
 #define END_STATIC_DATA_END             24576
-/* Inicio do espaco de dados dinamicos */
+/* Start of dynamic data space. */
 #define END_DYN_DATA_START              24577
-/* Final do espaco de dados dinamicos */
+/* End of dynamic data space. */
 #define END_DYN_DATA_END                30681
-/* Final do especo para programas e dados */
+/* End of program and data space. */
 #define END_PROGRAM_DATA_END            30681
-/* Se escrever neste endereco entao causa interrupcao de sistema */
+/* Writing to this address triggers a system interrupt. */
 #define END_SYSTEM_CALL                 30682
-/* Pilha (folga de 8 palavras) */
+/* Stack (8-word gap). */
 #define END_STACK_END                   30690
 #define END_STACK_START                 32738
-/* Mapeamento em memoria dos registradores de serial e timer */
+/* Memory-mapped serial and timer registers. */
 #define END_SERIAL_RX                   32746
 #define END_SERIAL_TX                   32747
 #define END_TIMER_REG                   32748
-/* Enderecos de posicoes para passagem de argumentos (ate 10 argumentos) */
+/* Memory addresses for passing up to 10 arguments. */
 #define END_ARG(X)                      ((X) + (32749))
-/* Endereco de posicao para retorno de funcoes */
+/* Memory address for function return values. */
 #define END_RET                         32759
-/* Enderecos das interrupcoes */
+/* Interrupt addresses. */
 #define END_INTP_TIMER                  32760
 #define END_INTP_KEYB                   32761
 #define END_INTP_SYST                   32762
@@ -420,20 +419,20 @@
 #define END_INTP_SERIAL                 32766
 #define END_INTP_RESET                  32767
 
-/* Strings para labels fixos */
-/* Inicio da memoria dinamica */
+/* Names of fixed labels. */
+/* Start of dynamic memory. */
 #define L_DYN_DATA_START_STR            "Dynamic_data_start"
 #define L_DYN_DATA_END_STR              "Dynamic_data_end"
-/* Chamada do sistema */
+/* System call. */
 #define L_SYSTEM_CALL_STR               "System_call"
-/* Pilha */
+/* Stack. */
 #define L_STACK_END_STR                 "Stack_end"
 #define L_STACK_START_STR               "Stack_start"
-/* Registradores mapeados em memoria */
+/* Memory-mapped registers. */
 #define L_SERIAL_RX_STR                 "Serial_RX"
 #define L_SERIAL_TX_STR                 "Serial_TX"
 #define L_TIMER_REG_STR                 "Timer"
-/* Argumentos */
+/* Arguments. */
 #define L_ARG0_STR                      "Arg0"
 #define L_ARG1_STR                      "Arg1"
 #define L_ARG2_STR                      "Arg2"
@@ -444,9 +443,9 @@
 #define L_ARG7_STR                      "Arg7"
 #define L_ARG8_STR                      "Arg8"
 #define L_ARG9_STR                      "Arg9"
-/* Retorno */
+/* Return value. */
 #define L_RET_STR                       "Ret"
-/* Interrupcoes */
+/* Interrupts. */
 #define L_INTP_TIMER_STR                "Interrupt_Timer"
 #define L_INTP_KEYB_STR                 "Interrupt_Keyboard"
 #define L_INTP_SYST_STR                 "Interrupt_System"
@@ -456,7 +455,7 @@
 #define L_INTP_SERIAL_STR               "Interrupt_Serial_Ready"
 #define L_INTP_RESET_STR                "Interrupt_Reset"
 
-/* Tamanho da memoria */
+/* Memory size. */
 #define MEM_SIZE 32768
 
 #endif

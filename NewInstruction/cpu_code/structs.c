@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "defs.h"
-#include "montador.h"
+#include "assembler.h"
 #include "parser.h"
 #include "structs.h"
 
@@ -23,10 +23,10 @@ void AddLabel(char * nome, unsigned short end)
         labels[label_cnt].End = end;
         label_cnt++;
     }
-    else parser_Abort("Maximo de labels atingido!");
+    else parser_Abort("Maximum number of labels reached!");
 }
 
-/* Busca Label e retorna endereco (fazer algo mais eficiente depois!) */
+/* Find a label and return its address (make this more efficient later!) */
 unsigned short FindLabel(char * nome)
 {
     register unsigned int i = 0;
@@ -36,6 +36,6 @@ unsigned short FindLabel(char * nome)
             return labels[i].End;
         i++;
     }
-    parser_Abort("Referencia invalida.");
+    parser_Abort("Invalid reference.");
     return 0;
 }

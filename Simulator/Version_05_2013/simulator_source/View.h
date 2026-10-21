@@ -2,8 +2,8 @@
 #define VIEW_H
 
 #include "Video.h"
-#include "Instrucoes.h"
-#include "Registradores.h"
+#include "Instructions.h"
+#include "Registers.h"
 
 #include <gtk/gtk.h>
 #include <string.h>
@@ -11,7 +11,7 @@
 #include "ModelInterface.h"
 #include "ControllerInterface.h"
 
-#include "Mneumonicos.h"
+#include "Mnemonics.h"
 
 class View : public Instrucoes, public Registradores, public Video
 {	private:

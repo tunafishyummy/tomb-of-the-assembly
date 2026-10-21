@@ -1,5 +1,5 @@
-// Para incluir uma nova INSTRUCAO, e' necessario mexer em 3 ugares diferentes:
-// 1) Definir os separadores da Instrucao e quantas linhas do EXE (mif) ela necessita:
+// To add a new instruction, update the three sections below:
+// 1) Define the instruction separators and how many MIF lines it needs:
     /*  case LOAD_CODE :
         case STORE_CODE :
         case LOADIMED_CODE :
@@ -10,7 +10,7 @@
             break;
     */
 
-// 2) Explicar como o Montador vai montar os BITs da Instrucao e escrever no arquivo:
+// 2) Explain how the assembler encodes the instruction bits and writes them to the file:
     /*  case LOAD_CODE : // Load R1, End
         str_tmp1 = parser_GetItem_s();
         val1 = BuscaRegistrador(str_tmp1);
@@ -30,7 +30,7 @@
         break;
     */
 
-// 3) Buscar o nome da instrucao na base de instrucoes e retornar 'op_code interno' da instrucao:
+// 3) Look up the instruction name and return its internal opcode:
     /*  if (strcmp(str_tmp,LOAD_STR) == 0)
         {
             return LOAD_CODE;
@@ -42,7 +42,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "defs.h"
-#include "montador.h"
+#include "assembler.h"
 #include "parser.h"
 #include "structs.h"
 
@@ -68,23 +68,23 @@ char * NumPBinString4(short);
 void Montar(void)
 {
 
-    parser_Message("Encontrando labels...");
+    parser_Message("Finding labels...");
     AdicionarLabelsFixos();
     DetectarLabels();
-    parser_Message("Montando codigo...");
+    parser_Message("Assembling program...");
     parser_Write("-- Codigo gerado pelo montador");
     parser_Write("WIDTH=16;");
-    parser_Write("DEPTH=32768;"); /* Tamanho da memoria aqui. */
+    parser_Write("DEPTH=32768;"); /* Memory size. */
     parser_Write("ADDRESS_RADIX=UNS;");
     parser_Write("DATA_RADIX=BIN;");
     parser_Write("CONTENT BEGIN");
-    parser_Message("Inicializando buffer de saida...");
+    parser_Message("Initializing output buffer...");
     parser_init_out_buffer();
     MontarInstrucoes();
-    parser_Message("Descarregando buffer de saida...");
+    parser_Message("Writing output buffer...");
     parser_flush_program();
     parser_Write("END;");
-    parser_Message("Concluido.");
+    parser_Message("Done.");
 
 }
 
@@ -119,7 +119,7 @@ void AdicionarLabelsFixos(void)
     AddLabel(L_INTP_RESET_STR,END_INTP_RESET);
 }
 
-/* Atencao: Uma instrucao por linha e um label por linha apenas! */
+/* Note: Use at most one instruction and one label per line. */
 void DetectarLabels(void)
 {
 
@@ -139,19 +139,19 @@ void DetectarLabels(void)
         {
             parser_Match(':');
             AddLabel(str_tmp,end_cnt);
-            sprintf(str_msg,"Label \"%s\" em 0x%x.",str_tmp,end_cnt);
+            sprintf(str_msg,"Label \"%s\" at 0x%x.",str_tmp,end_cnt);
             parser_Message(str_msg);
         }
         else if (op_code == VAR_CODE)
         {
-            /* Faz parsing da pseudo-instrucao e pula 'n' enderecos */
+            /* Parse the pseudo-instruction and skip 'n' addresses. */
             aux = RecebeNumero();
             end_cnt += aux;
         }
         else if (op_code == STRING_CODE)
         {
-            /* Faz parsing da string, conta caracteres e pula o numero
-               de caracteres + 1. */
+            /* Parse the string, count its characters, and skip that many
+               addresses plus one for the terminator. */
             parser_Match_noskip('"');
             while (Look != '"')
             {
@@ -170,34 +170,32 @@ void DetectarLabels(void)
             /*
             alloc Label, #Nr
 
-            Observacoes : alloc aloca, em tempo de montagem, um espaco
-               (com base no numero) na parte da memoria para dados estaticos e
-               cria um label para este espaco.
+            Notes: alloc reserves space in the static data area at assembly
+               time (using the given size) and creates a label for that space.
 
-               Observacoes : alloc deve receber apenas numeros positivos (unsigned)
+               alloc accepts only positive (unsigned) numbers.
             */
             str_tmp1 = parser_GetItem_s();
             AddLabel(str_tmp1,alloc_cnt);
-            sprintf(str_msg,"Label \"%s\" em 0x%x.",str_tmp1,alloc_cnt);
+            sprintf(str_msg,"Label \"%s\" at 0x%x.",str_tmp1,alloc_cnt);
             free(str_tmp1);
             parser_Message(str_msg);
             parser_Match(',');
             aux = RecebeNumero();
             alloc_cnt += aux;
             if (alloc_cnt == END_STATIC_DATA_END+1)
-                parser_Warning("Alloc ultrapassou o espaco de dados estaticos.");
+                parser_Warning("Alloc exceeded the static data area.");
         }
         else
         {
-            /* Se for intrucao entao soma end_cnt
-            conforme numero de linhas de endereco
-            que esta funcao necessita.
+            /* For an instruction, increment end_cnt by the number of
+            address lines it requires.
 
-            Tambem pula a declaracao da instrucao. */
+            Also skip the instruction declaration. */
             switch (op_code)
             {
 
-            /* Loads e Stores */
+            /* Loads and stores. */
             case LOAD_CODE :
             case STORE_CODE :
             case LOADIMED_CODE :
@@ -230,7 +228,7 @@ void DetectarLabels(void)
             case BO_CODE :
             case BNO_CODE :
 			    /* BRA nao implementado! */
-                parser_Abort("BRA nao implementado!");				
+                parser_Abort("BRA is not implemented!");
                 parser_SkipUntilEnd();
                 end_cnt++;
                 break;
@@ -351,7 +349,7 @@ void DetectarLabels(void)
                 break;
 
             default :
-                parser_Abort("Instrucao invalida!");
+                parser_Abort("Invalid instruction!");
                 break;
             }
         }
@@ -383,7 +381,7 @@ void MontarInstrucoes(void)
     {
 
         if (end_cnt == END_PROGRAM_END+1)
-            parser_Warning("Espaco para programa ultrapassado!");
+            parser_Warning("Program space limit exceeded!");
 
         str_tmp = parser_GetItem_s();
         op_code = BuscaInstrucao(str_tmp);
@@ -2170,7 +2168,7 @@ void MontarInstrucoes(void)
 						    case '\"' :
 								str_tmp1 = NumPBinString((unsigned short)'\"');
                             default :
-                                parser_Abort("Caractere invalido na string!.");
+                                parser_Abort("Invalid character in string!");
                                 break;
                             }
                             parser_Write_Inst(str_tmp1,end_cnt+i);
@@ -2234,7 +2232,7 @@ void MontarInstrucoes(void)
 
                 default :
                     parser_SkipUntilEnd();
-                    parser_Warning("Instrucao invalida!");
+                    parser_Warning("Invalid instruction!");
                     break;
             }
         }
@@ -2246,11 +2244,10 @@ void MontarInstrucoes(void)
 int BuscaInstrucao(char * nome)
 {
     char str_tmp[STRTAM];
-    strcpy(str_tmp,nome); /* Faz copia para nao alterar string original. */
+    strcpy(str_tmp,nome); /* Copy it without changing the original string. */
     parser_str_to_upper(str_tmp);
-    /* Busca nome de instrucao na base de instrucoes,
-    se contrar retorna 'op_code interno' da instrucao,
-    se nao encontrar entao retorna 'op_code' de label.
+    /* Look up the instruction name. If found, return its internal opcode;
+    otherwise, return the opcode used for a label.
     */
 
     if (strcmp(str_tmp,LOAD_STR) == 0)
@@ -2650,7 +2647,7 @@ int BuscaInstrucao(char * nome)
         return NOP_CODE;
     }
 
-    /* Pseudo-instrucoes */
+    /* Pseudo-instructions. */
     else if (strcmp(str_tmp,EQU_STR) == 0)
     {
         return EQU_CODE;
@@ -2678,8 +2675,8 @@ int BuscaInstrucao(char * nome)
 int BuscaRegistrador(char * nome)
 {
     parser_str_to_upper(nome);
-    /* Retorna codigo do registrador, dependendo do texto
-    (poderá ser Rx, rx ou texto de EQU de registrador) */
+    /* Return the register code for the supplied text. It can be Rx, rx,
+       or the name of a register EQU. */
     if (strcmp(nome,REG0_STR) == 0)
     {
         return REG0_CODE;
@@ -2722,9 +2719,9 @@ int BuscaRegistrador(char * nome)
     }
     else
     {
-        /* Busca EQU. Se nao encontrar, entao retorna erro. */
+        /* Look up the EQU; report an error if it is not found. */
         /* IMPLEMENTE-ME */
-        parser_Abort("Registrador invalido!");  /* <- remover esta linha */
+        parser_Abort("Invalid register!");  /* <- remove this line */
     }
     return -1;
 }
@@ -2759,7 +2756,7 @@ char * ConverteRegistrador(int num)
         strcpy(ret,REG7);
         break;
     default :
-        parser_Abort("Registrador invalido!");
+        parser_Abort("Invalid register!");
     }
     ret[3] = '\0';
     return ret;
@@ -2815,7 +2812,7 @@ unsigned short RecebeNumero(void)
                     ret = (unsigned short)'\\';
                     break;
                 default :
-                    parser_Abort("Caractere invalido.");
+                    parser_Abort("Invalid character.");
                     break;
                 }
                 parser_GetChar();
@@ -2825,8 +2822,8 @@ unsigned short RecebeNumero(void)
             else   /* Char normal : #'a' */
             {
                 ret = (unsigned short) Look;
-				// comentado para fazer com que #'a' seja o numero ASCII
-				//ret = ret & 0x3f;  /* Tira os 2 bits mais significativos que e' a COR do caractere */
+				// Kept commented out so #'a' is encoded as its ASCII value.
+				//ret = ret & 0x3f;  /* Remove the two most significant color bits. */
                 parser_GetChar();
                 parser_Match(39);
                 return ret;
@@ -2843,11 +2840,11 @@ unsigned short RecebeNumero(void)
     else if (parser_IsAlNum(Look))  /* EQU : X */
     {
         /* IMPLEMENTE-ME */
-        parser_Abort("Numero esperado."); /* <- remover esta linha */
+        parser_Abort("Expected a number."); /* <- remove this line */
     }
     else
     {
-        parser_Abort("Numero esperado.");
+        parser_Abort("Expected a number.");
     }
     return 0;
 }
@@ -2860,11 +2857,11 @@ unsigned short GetBit(unsigned short num, unsigned short pos)
 
 char * NumPBinString(short num)
 {
-    /* Converte numero para string de binarios */
+    /* Convert a number to a binary string. */
     char * ret = calloc(17,sizeof(char));
     unsigned short digitos[16];
 
-    if (ret == NULL) parser_Error("Memoria insuficiente para alocacao!");
+    if (ret == NULL) parser_Error("Not enough memory for allocation!");
     unsigned short i = 15;
 
     for (i = 0; i < 16; i++)
@@ -2883,14 +2880,14 @@ char * NumPBinString(short num)
 
 char * NumPBinString4(short num)
 {
-    /* Converte numero para string de binarios com 4 bits */
+    /* Convert a number to a 4-bit binary string. */
     char * ret = calloc(5,sizeof(char));
     unsigned short digitos[4];
 
-    if (ret == NULL) parser_Error("Memoria insuficiente para alocacao!");
+    if (ret == NULL) parser_Error("Not enough memory for allocation!");
     unsigned short i = 3;
 
-    if (num > 15) parser_Error("Shift Rx, N com N maior que 15!");
+    if (num > 15) parser_Error("Shift Rx, N where N is greater than 15!");
     
     for (i = 0; i < 4; i++)
     {
@@ -2912,7 +2909,7 @@ unsigned short RecebeEndereco(void)
     unsigned short ret;
     char * str_tmp;
 
-    if (parser_IsDigit(Look))  /* ATENCAO! Labels e EQU nao podem comecar com numeros!!! */
+    if (parser_IsDigit(Look))  /* Note: labels and EQU names cannot start with digits. */
     {
         str_tmp = parser_GetNum_s();
         ret = atoi(str_tmp);
@@ -2922,7 +2919,7 @@ unsigned short RecebeEndereco(void)
     else   /* EQU : X ou Label : Var */
     {
         str_tmp = parser_GetItem_s();
-        /* Busca EQU, se nao encontrar, busca Label */
+        /* Look up the EQU first, then look up the label. */
         ret = FindLabel(str_tmp);
         free(str_tmp);
         return ret;

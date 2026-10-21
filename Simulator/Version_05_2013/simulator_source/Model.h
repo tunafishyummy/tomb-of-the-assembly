@@ -1,7 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "Mneumonicos.h"
+#include "Mnemonics.h"
 #include "ModelInterface.h"
 
 #include <stdio.h>

@@ -1,6 +1,6 @@
 [Project]
-FileName=simulador.dev
-Name=simulador
+FileName=simulator.dev
+Name=simulator
 UnitCount=13
 Type=1
 Ver=1
@@ -18,7 +18,7 @@ Icon=
 ExeOutput=
 ObjectOutput=
 OverrideOutput=0
-OverrideOutputName=simulador.exe
+OverrideOutputName=simulator.exe
 HostApplication=
 Folders=headers,source
 CommandLine=
@@ -60,7 +60,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit4]
-FileName=Instrucoes.h
+FileName=Instructions.h
 CompileCpp=1
 Folder=headers
 Compile=1
@@ -80,7 +80,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=Mneumonicos.h
+FileName=Mnemonics.h
 CompileCpp=1
 Folder=headers
 Compile=1
@@ -120,7 +120,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit10]
-FileName=Registradores.h
+FileName=Registers.h
 CompileCpp=1
 Folder=headers
 Compile=1

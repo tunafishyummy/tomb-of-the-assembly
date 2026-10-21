@@ -3,12 +3,12 @@
 #include "defs.h"
 #include "parser.h"
 #include "structs.h"
-#include "montador.h"
+#include "assembler.h"
 
-/* Versao do montador */
+/* Assembler version */
 #define VERSAO "0.0"
 
-/* Arquivos de entrada e saida */
+/* Input and output files */
 FILE *in;
 FILE *out;
 
@@ -17,14 +17,14 @@ int main(int argc, char *argv[])
 
     if (argc < 3)
     {
-        printf("Montador :\nUso : %s <arquivo texto de entrada> <arquivo .mif de saida>\n",argv[0]);
+        printf("Assembler:\nUsage: %s <input text file> <output .mif file>\n",argv[0]);
 #ifndef __linux__
         system("pause");
 #endif
         exit(1);
     }
 
-    printf("Montador v.%s\n",VERSAO);
+    printf("Assembler v.%s\n",VERSAO);
 
     CarregaPrograma(argv[1]);
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
     if (out == NULL)
     {
-        parser_Abort("Impossivel criar arquivo para escrita!");
+        parser_Abort("Could not create output file!");
     }
 
     Montar();

@@ -2,8 +2,8 @@
 #define MODELINTERFACE_H
 
 #include "Video.h"
-#include "Instrucoes.h"
-#include "Registradores.h"
+#include "Instructions.h"
+#include "Registers.h"
 #include "ControllerInterface.h"
 
 typedef struct

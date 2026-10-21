@@ -11,7 +11,7 @@
 #define TRUE 1
 #define FALSE 0
 
-/* Carregamento do arquivo */
+/* File loading */
 int CarregaPrograma(char *);
 
 /* Funcoes */

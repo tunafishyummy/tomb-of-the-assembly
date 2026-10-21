@@ -31,31 +31,35 @@ of the Philippines, Quezon City.
 ## How to build and run
 
 The assembler and the simulator sources are part of this repository. The game
-is `Simulador/tomb_of_mask.asm`, it compiles to `Simulador/tomb_of_mask.mif`,
-and the simulator runs that file together with `Simulador/charmap.mif`.
+is `Simulator/tomb_of_mask.asm`, it compiles to `Simulator/tomb_of_mask.mif`,
+and the simulator runs that file together with `Simulator/charmap.mif`.
 
 Windows, using the prebuilt tools:
 
 ```
-cd Simulador
-Versao_05_2013\32_bits\Montador.exe tomb_of_mask.asm tomb_of_mask.mif
-Versao_05_2013\simulador_fonte\simulador.exe tomb_of_mask.mif charmap.mif
+cd Simulator
+$env:Path = "$PWD\Version_05_2013\32_bits;$env:Path"
+Version_05_2013\32_bits\Assembler.exe tomb_of_mask.asm tomb_of_mask.mif
+Version_05_2013\simulator_source\simulator.exe tomb_of_mask.mif charmap.mif
 ```
 
-If you change the simulator sources, rebuild `simulador.exe` in Dev-C++ with
-`Versao_05_2013/simulador_fonte/Makefile.win`, which is already set up with
+Run these commands in VS Code's PowerShell terminal. The PATH change makes the
+included GTK runtime available to the simulator for that terminal session.
+
+If you change the simulator sources, rebuild `simulator.exe` in Dev-C++ with
+`Version_05_2013/simulator_source/Makefile.win`, which is already set up with
 the needed include paths and optimization flags.
 
 Linux:
 
 ```
-cd NovaInstrucao/codigoCPU
-gcc main.c parser.c montador.c structs.c -o montador -lm
-./montador ../../Simulador/tomb_of_mask.asm ../../Simulador/tomb_of_mask.mif
-cd ../../Simulador/Versao_05_2013/simulador_fonte
-bash compila.sh
+cd NewInstruction/cpu_code
+gcc main.c parser.c assembler.c structs.c -o assembler -lm
+./assembler ../../Simulator/tomb_of_mask.asm ../../Simulator/tomb_of_mask.mif
+cd ../../Simulator/Version_05_2013/simulator_source
+bash build_simulator.sh
 cd ../..
-./Versao_05_2013/simulador_fonte/sim tomb_of_mask.mif charmap.mif
+./Version_05_2013/simulator_source/simulator tomb_of_mask.mif charmap.mif
 ```
 
 The Linux build needs the GTK 2 development packages, curses and pthreads.
@@ -91,11 +95,11 @@ audio output.
 
 ## Repository layout
 
-- `Simulador/` the game source, the compiled mif, the character map and the
-  simulator sources under `Versao_05_2013/`.
-- `NovaInstrucao/` the new instruction deliverable and the assembler sources
+- `Simulator/` the game source, the compiled mif, the character map and the
+  simulator sources under `Version_05_2013/`.
+- `NewInstruction/` the new instruction deliverable and the assembler sources
   and a terminal model of the CPU.
-- `Simulador/Versao_05_2013/Manual/` the original ICMC processor and
+- `Simulator/Version_05_2013/Manuals/` the original ICMC processor and
   simulator manuals.
 
 The development helpers (a level solver, a headless CPU emulator that runs

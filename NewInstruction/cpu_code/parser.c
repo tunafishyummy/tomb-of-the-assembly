@@ -5,24 +5,24 @@
 #include "structs.h"
 #include "defs.h"
 
-extern FILE *out; /* Codigo de saida */
-extern FILE *in; /* Codigo de entrada */
+extern FILE *out; /* Output file */
+extern FILE *in; /* Input file */
 
-char Look; /* Ultimo caractere lido */
-int curr_pos = 0; /* Posicao atual */
-int curr_line = 0; /* Linha atual */
+char Look; /* Last character read */
+int curr_pos = 0; /* Current position */
+int curr_line = 0; /* Current line */
 char * progr_buffer; /* String completa do programa */
 
-char progr_buffer_out[MEM_SIZE][17]; /* Buffer de saida */
+char progr_buffer_out[MEM_SIZE][17]; /* Output buffer */
 
 int CarregaPrograma(char *nome)
 {
     in = fopen(nome,"r");
-    if (in == NULL) parser_Abort("Nao foi possivel carregar o arquivo de programa.");
+    if (in == NULL) parser_Abort("Could not open the program file.");
 
     progr_buffer = (char *)malloc((MAX_BUFF_SIZE+1)*sizeof(char));
 
-    if (progr_buffer == NULL) parser_Abort("Memoria insuficiente para buffer do programa!");
+    if (progr_buffer == NULL) parser_Abort("Not enough memory for the program buffer!");
 
     int i;
 
@@ -44,17 +44,17 @@ int CarregaPrograma(char *nome)
 void parser_Rewind(void)
 {
     curr_pos = 0;
-    curr_line = 0; /* Contagem de linhas nao e precisa. */
+    curr_line = 0; /* Line count is approximate. */
 }
 
 void parser_Message(char *s)
 {
-    printf("Mensagem (%d): %s\n",curr_line,s);
+    printf("Message (%d): %s\n",curr_line,s);
 }
 
 void parser_Warning(char *s)
 {
-    printf("Aviso (%d): %s\n",curr_line,s);
+    printf("Warning (%d): %s\n",curr_line,s);
 }
 
 void parser_Halt(void)
@@ -81,7 +81,7 @@ void parser_GetChar(void)
 
 void parser_Error(char *s)
 {
-    printf("\nErro (%d): %s\n",curr_line,s);
+    printf("\nError (%d): %s\n",curr_line,s);
 }
 
 void parser_Abort(char *s)
@@ -95,10 +95,10 @@ void parser_Expected(char *s)
     char ss[400];
 
     char *line_start = progr_buffer + curr_pos;
-    // line_start aponta para o inicio da linha
+    // Find the start of the line.
     while (line_start > progr_buffer && *(line_start-1) != '\r' && *(line_start-1) != '\n')
         line_start--;
-    // line_end aponta para o final da linha
+    // Find the end of the line.
     char *line_end = progr_buffer + curr_pos;
     while (*line_end != '\r' && *line_end != '\n' && *line_end != EOF)
         line_end++;
@@ -113,7 +113,7 @@ void parser_Expected(char *s)
     spaces[i] = '^';
     spaces[i + 1] = '\0';
 
-    sprintf(ss,"%s esperado:\n    \"%.*s\"\n     %s", s, length, line_start, spaces);
+    sprintf(ss,"Expected %s:\n    \"%.*s\"\n     %s", s, length, line_start, spaces);
     parser_Abort(ss);
 }
 
@@ -190,7 +190,7 @@ void parser_SkipUntil(char c)
     while (Look != c)
     {
         parser_GetChar();
-        if (Look == EOF) parser_Match(c); /* Match sempre falha, entao da erro se chegar no EOF */
+        if (Look == EOF) parser_Match(c); /* Match always fails here, producing an error at EOF. */
     }
     parser_Match(c);
     parser_SkipWhite();
@@ -210,19 +210,19 @@ void parser_SkipUntilEnd(void)
     parser_SkipWhite();
 }
 
-/* Pega nome de label, registrador ou intrucao */
+/* Read a label, register, or instruction name. */
 char * parser_GetItem_s(void)
 {
     char *Token;
     Token = (char *)calloc(STRTAM,sizeof(char));
     int i=0;
-    if (!parser_IsAlNum(Look)) parser_Expected("Label, Instrucao ou Registrador");
+    if (!parser_IsAlNum(Look)) parser_Expected("label, instruction, or register");
     while (parser_IsAlNum(Look))
     {
         Token[i]=Look;
         parser_GetChar();
         i++;
-        if (i>LABEL_MAX_SIZE-1) parser_Expected("Menos caracteres");
+        if (i>LABEL_MAX_SIZE-1) parser_Expected("a shorter token");
     }
     Token[i]='\0';
     parser_SkipWhite();
@@ -237,13 +237,13 @@ char * parser_GetNum_s(void)
     char *Value;
     Value = (char *)calloc(STRTAM,sizeof(char));
     int i=0;
-    if (!parser_IsDigit(Look)) parser_Expected("Numero");
+    if (!parser_IsDigit(Look)) parser_Expected("number");
     while (parser_IsDigit(Look))
     {
         Value[i]=Look;
         parser_GetChar();
         i++;
-        if (i>STRTAM-1) parser_Expected("Menos caracteres");
+        if (i>STRTAM-1) parser_Expected("a shorter token");
     }
     Value[i]='\0';
     parser_SkipWhite();
@@ -258,7 +258,7 @@ int parser_IsInt(char *s)
     for (i=0;i<strlen(s);i++)
         if (!parser_IsDigit(s[i]) && s[i]!='-')
         {
-            parser_Expected("Inteiro");
+            parser_Expected("integer");
             return FALSE;
         }
     return TRUE;
@@ -284,7 +284,7 @@ void parser_Write_Inst(char word[17], unsigned int end)
     fprintf(out,"%d:%.16s;\n",end,word);
     */
     if(end >= MEM_SIZE) {
-        parser_Abort("Limite da memoria ultrapassado!");
+        parser_Abort("Memory limit exceeded!");
     }
     strcpy(progr_buffer_out[end],word);
 //    printf("Escrito : %.16s em 0x%x\n",word,end);
@@ -300,7 +300,7 @@ void parser_str_to_upper(char * str)
     }
 }
 
-/* Inicializa buffer de saida */
+/* Initialize the output buffer. */
 void parser_init_out_buffer(void) 
 {
     int i;
@@ -309,7 +309,7 @@ void parser_init_out_buffer(void)
         strcpy(progr_buffer_out[i],"0000000000000000");   
 }
 
-/* Descarrega buffer de saida no arquivo */
+/* Flush the output buffer to the file. */
 void parser_flush_program(void) 
 {
     int i;

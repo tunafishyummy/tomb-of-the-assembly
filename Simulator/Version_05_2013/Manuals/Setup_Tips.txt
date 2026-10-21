@@ -1,0 +1,46 @@
+Legacy Windows GTK 2 setup notes
+===============================
+
+These instructions were tested on Windows 7 and also worked on Windows 8 and
+Vista. They describe the original GTK 2 simulator toolchain.
+
+1. Download the GTK 2 Windows bundle from:
+   http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.24/gtk+-bundle_2.24.10-20120208_win32.zip
+
+2. Extract it to a folder.
+
+3. Add the bundle's BIN subfolder to the Windows PATH.
+   On a lab computer where you cannot edit the system PATH, open Command
+   Prompt and enter:
+
+   path C:\Path\to\the\extracted\GTK\BIN
+
+   This change lasts only while that Command Prompt window remains open.
+
+4. In that same Command Prompt, run:
+
+   pkg-config --cflags gtk+-2.0
+
+   If Windows cannot find the command, check the PATH setting from step 3.
+
+5. Extract the simulator and assembler to a folder.
+6. Use the same Command Prompt and change to that folder.
+7. Write an assembly program and save it as teste.asm.
+8. Assemble it:
+
+   Assembler.exe teste.asm teste.mif
+
+9. Run it in the simulator:
+
+   simulator.exe teste.mif charmap.mif
+
+Optional: run from Notepad++ using NppExec
+-----------------------------------------
+
+1. Install Notepad++ if needed.
+2. Install the NppExec plugin through Plugins > Plugin Manager.
+3. In NppExec's Execute dialog, use this script:
+
+   cmd /c cd $(CURRENT_DIRECTORY) && cmd /c Assembler $(NAME_PART).asm $(NAME_PART).mif && simulator $(NAME_PART).mif charmap.mif
+
+4. Save the script and assign a keyboard shortcut if desired.

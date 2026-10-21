@@ -1,4 +1,4 @@
-// gcc simple_simulator.c -O3 -march=native -o simulador -Wall -lm
+// gcc simple_simulator.c -O3 -march=native -o simulator -Wall -lm
 // -lm is option to execute math.h library file.
 /*
 Perguntas:
@@ -198,10 +198,10 @@ int main()
 	le_arquivo();
 
 inicio:
-	printf("PROCESSADOR ICMC  - Menu:\n");
-	printf("                          'r' goto inicio...\n");
-	printf("                          'q' goto fim...\n\n");
-	printf("Rodando...\n");
+	printf("ICMC PROCESSOR - Menu:\n");
+	printf("                          Press 'r' to restart...\n");
+	printf("                          Press 'q' to quit...\n\n");
+	printf("Running...\n");
 
 	state = STATE_RESET;
 
@@ -711,7 +711,7 @@ loop:
 
 	if(M1 > (TAMANHO_MEMORIA)) {
 		M1 = 0;
-		printf("  \n\nUltrapassou limite da memoria, coloque um jmp no fim do código\n");
+		printf("  \n\nMemory limit exceeded. Add a jmp at the end of the program.\n");
 		exit(1);
 	}
 
@@ -760,7 +760,7 @@ void le_arquivo(void){
 
 	if ( (stream = fopen("cpuram.mif","r")) == NULL)  // Abre o arquivo para leitura
 	{
-		printf("Error: File not OPEN!");
+		printf("Error: Could not open the file.\n");
 		exit(1);
 	}
 
@@ -790,7 +790,7 @@ void le_arquivo(void){
 		if (processando && (j < TAMANHO_MEMORIA)) {
 			MEMORY[j] = processa_linha(linha);
 			if (MEMORY[j] == -1) {
-				printf("Linha invalida (%d): '%s'", j, linha);
+				printf("Invalid line (%d): '%s'", j, linha);
 			}
 			else {
 				//printf("Valor: %d. Linha: %s\n", MEMORY[j], linha);

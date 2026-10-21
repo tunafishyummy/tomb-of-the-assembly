@@ -1,0 +1,189 @@
+High-level language syntax
+==========================
+
+This document describes the language syntax and some of its features.
+
+Scope notation
+--------------
+"Outside the function block" means a declaration or command must appear
+outside a function. "Inside the function block" means it must appear inside a
+function body.
+
+Expressions
+-----------
+
+Addition:
+  <expression> + <expression>
+
+Subtraction:
+  <expression> - <expression>
+  Note: the architecture accepts positive numbers only.
+
+Multiplication:
+  <expression> * <expression>
+  This operator has precedence over + and -.
+
+Division:
+  <expression> | <expression>
+  This operator has precedence over + and -.
+
+Parentheses:
+  (<expression>)
+  The expression inside parentheses is evaluated first.
+
+Read a variable's value:
+  $<variable name>
+  Replaces the variable name with the value at the memory address stored in
+the variable.
+
+Read memory at an address computed by an expression:
+  $(<expression>)
+  The expression is evaluated first; $ then replaces it with the value stored
+at that memory address.
+
+Variable address:
+  &<variable name>
+  Replaces the variable name with its memory address.
+
+Number:
+  <number>
+  A number may be from 0 to 65536.
+
+Constant:
+  <constant name>
+  Replaced by the constant's value.
+
+Variable:
+  <variable name>
+  Replaced by the value at the variable's address.
+
+Array element:
+  <variable name>[<expression>]
+  The expression selects an array position; the value at that position is
+used.
+
+Character:
+  '<character>'
+  A normal keyboard character or one of these escapes:
+    \n  newline
+    \0  string terminator
+    \"  double-quote character
+    \'  single-quote character
+    \\  backslash
+
+Text:
+  "<text>"
+  Text is described at the end of this document. It is stored in memory, and
+the expression evaluates to the address of its first character. A '\0'
+terminator is stored after the text.
+
+Comparators
+-----------
+
+  >   greater than
+  <   less than
+  >=  greater than or equal to
+  <=  less than or equal to
+  ==  equal to
+  !=  not equal to
+
+Variables and constants
+-----------------------
+
+Global variable, outside the function block:
+  short <variable name>;
+
+Global array, outside the function block:
+  short <variable name>[<number>];
+  The array size is a number as defined under Expressions. The language may
+later support a number or constant as the size.
+
+Constant, outside the function block:
+  const <constant name> = <number or character>;
+
+Local variable without an initial value, inside a function:
+  short <variable name>;
+
+Local array, inside a function:
+  short <variable name>[<number>];
+  The array size is a number as defined under Expressions. The language may
+later support a number or constant as the size.
+
+Local variable with an initial value, inside a function:
+  short <variable name> = <expression>;
+
+Functions and imports
+---------------------
+
+Function with no return value or arguments, outside the function block:
+  void <function name>(void) { <function body> }
+
+Function with no return value and arguments:
+  void <function name>(short <argument 1>, ...) { <function body> }
+
+Function with a return value and no arguments:
+  short <function name>(void) { <function body> }
+  The body must contain at least one return command that sets the value.
+
+Function with a return value and arguments:
+  short <function name>(short <argument 1>, ...) { <function body> }
+  Each additional argument is declared as short <argument name>. A function
+may have at most 10 arguments. The body must contain at least one return
+command that sets the value.
+
+Import, outside the function block:
+  import "<path to the .asm file to import>";
+
+Commands
+--------
+All commands below appear inside a function body.
+
+Inline assembly:
+  asm("<one-line assembly command>");
+  The assembly command is not a text literal and must not contain special
+characters.
+
+strwrt (not recommended):
+  strwrt(<variable name>, "<text>");
+  The variable must be an array or a pointer to dynamically allocated memory.
+The text is stored there, followed by a '\0' terminator.
+
+Assign to a variable:
+  <variable name> = <expression>;
+
+Assign through a variable-held memory address:
+  $<variable name> = <expression>;
+
+Assign to an array element:
+  <variable name>[<expression>] = <expression>;
+
+Call a function with no arguments:
+  <function name>();
+
+Call a function with arguments:
+  <function name>(<expression>, ...);
+  Each expression is assigned to the corresponding argument. A call may have
+at most 10 arguments.
+
+Conditional if:
+  if(<expression> <comparator> <expression>) { <function body> }
+  The body runs when the comparison is true. Do not use inline assembly inside
+this body to jump outside the if block with JMP or BRA.
+
+Conditional loop while:
+  while(<expression> <comparator> <expression>) { <function body> }
+  The body runs while the comparison is true. The comparison is checked again
+after each execution. Do not use inline assembly inside this body to jump
+outside the while block with JMP or BRA.
+
+Return value:
+  return <expression>;
+  This command sets the return value; it does not itself return from the
+function.
+
+Text literals
+-------------
+
+A text literal is a sequence of characters enclosed in double quotes. It may
+contain normal keyboard characters or the special characters listed under
+Character in the Expressions section.
