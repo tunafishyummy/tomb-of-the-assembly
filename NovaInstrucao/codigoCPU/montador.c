@@ -2012,16 +2012,20 @@ void MontarInstrucoes(void)
                     val1 = BuscaRegistrador(str_tmp1);
                     free(str_tmp1);
 		    
-        		    if(val1 == FR_CODE)  // Push FR  ADD R0, r1, r2
-        			
-
-                    sprintf(str_msg,"%s0001000000",PUSH);
-        		    else 
+		    if(val1 == FR_CODE)
+			sprintf(str_msg,"%s0001000000",PUSH);
+		    else {
+			str_tmp1 = ConverteRegistrador(val1);
+			sprintf(str_msg,"%s%s0000000",PUSH,str_tmp1);
+			free(str_tmp1);
+		    }
+		    parser_Write_Inst(str_msg,end_cnt);
+		    end_cnt += 1;
+                    break;
                     
                 /* ==============
                    Pop Rx
-                   ==============
-                */
+                   ============== */
                     
                 case POP_CODE :
                     str_tmp1 = parser_GetItem_s();

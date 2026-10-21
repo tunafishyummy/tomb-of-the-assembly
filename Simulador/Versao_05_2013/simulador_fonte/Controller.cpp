@@ -21,7 +21,12 @@ Controller::~Controller()
 {	delete view; }
 
 void Controller::reset()
-{	model->reset();
+{	// Stop the automatic processing before the memory is replaced
+	if(automatico)
+	{	model->setProcessamento(false);
+		notifyProcessamento();
+	}
+	model->reset();
 	if(resetVideo)
 	{	model->resetVideo();
 		for(int i=1200; i--; )
@@ -101,6 +106,27 @@ bool Controller::userInput(const char *tecla)
 		}
 		else if( !strcmp(tecla, "Insert") )
 		{	reset(); 
+			return TRUE;
+		}
+		else if( !strcmp(tecla, "Tab") )
+		{	// Let the game see Tab as key 9 (in-game help overlay)
+			key = 9;
+			return TRUE;
+		}
+		else if( !strcmp(tecla, "Up") )
+		{	key = 17;   // arrow keys reach the program as 17..20
+			return TRUE;
+		}
+		else if( !strcmp(tecla, "Down") )
+		{	key = 18;
+			return TRUE;
+		}
+		else if( !strcmp(tecla, "Left") )
+		{	key = 19;
+			return TRUE;
+		}
+		else if( !strcmp(tecla, "Right") )
+		{	key = 20;
 			return TRUE;
 		}
 		return FALSE;

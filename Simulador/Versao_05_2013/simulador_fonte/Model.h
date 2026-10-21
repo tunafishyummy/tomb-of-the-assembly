@@ -31,6 +31,8 @@ class Model : public ModelInterface
 
 		// ---- Memoria --------
 		int mem[TAMANHO_MEMORIA]; // Vetor que representa a Memoria de programa e de dados do Processador
+		int memInicial[TAMANHO_MEMORIA]; // Copia da memoria logo apos carregar o arquivo, usada no reset
+		bool threadAtiva; // Indica se a thread de processamento automatico ja esta rodando
 
 		// ---- Nome dos arquivos ------
 		char cpuram[64];
@@ -148,6 +150,7 @@ class Model : public ModelInterface
 		// ------ Processador ---------
 		bool getProcessamento();
 		void setProcessamento(bool automatico);
+		void fimProcessamento();
 
 		void delay();
 

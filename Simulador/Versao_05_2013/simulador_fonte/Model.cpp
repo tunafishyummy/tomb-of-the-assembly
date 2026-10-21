@@ -11,19 +11,14 @@ void* processaAutomatico(void *data)
 
 	while( model->getProcessamento() ) // automatico
 	{	gdk_threads_enter();
-		model->processador();
+		// Processa um lote por vez para reduzir a troca de contexto
+		for(contador = 0; contador < 250 && model->getProcessamento(); contador++)
+			model->processador();
 		gdk_threads_leave();
-
-		contador++;
-//*
-		if(contador > 500)
-		{	model->delay();
-			contador = 0;
-		}
-//*/
 	}
 	gdk_threads_enter();
 	model->updateAll();
+	model->fimProcessamento();
 	gdk_threads_leave();
 
 	return NULL;
@@ -43,7 +38,7 @@ void Model::updateAll()
 Model::Model(char *cpuram, char *charmap)
 {	FILE *pf;
 	if( (pf = fopen(cpuram, "r")) == NULL)
-	{	printf("Erro ao tentar abrir: %s\n", cpuram);
+	{	printf("Error trying to open: %s\n", cpuram);
 		exit(1);
 	}
 
@@ -51,12 +46,14 @@ Model::Model(char *cpuram, char *charmap)
 	fgets(linha, 128, pf);
 	if( strcmp("-- Codigo gerado pelo montador\n", linha) && strcmp("-- Codigo gerado pelo montador\r\n", linha) )
 	{	fclose(pf);
-		printf("Erro no arquivo .mif");
+		printf("Error in the .mif file");
 		exit(1);
 	}
 	fclose(pf);
 
 	GravaArquivo(cpuram);
+	memcpy(memInicial, mem, sizeof(mem));
+	threadAtiva = false;
 	load_charmap(charmap);
 
 	sprintf(this->cpuram, "CPURAM: %s", cpuram);
@@ -77,7 +74,8 @@ void Model::setController(ControllerInterface *controller)
 {	this->controller = controller; }
 
 void Model::reset()
-{	pc = 0;
+{	memcpy(mem, memInicial, sizeof(mem));	// Restaura a memoria carregada do arquivo
+	pc = 0;
 	ir = 0;
  	sp = 0x7FFC;
 	auxpc = 0;
@@ -187,34 +185,25 @@ void Model::setProcessamento(bool automatico)
 bool Model::getProcessamento()
 {	return automatico; }
 
+void Model::fimProcessamento()
+{	threadAtiva = false; }
+
 void Model::processa()
 { if(automatico)
-	{	//pthread_join(out, NULL);
-		//pthread_create(&out, NULL, processaAutomatico, this); // cria uma thread para o Processamento
+	{	if(threadAtiva)	// Evita duas threads quando Home e' apertado varias vezes
+			return;
 
 		GError *error = NULL;
 
-		/* mexi ontem para ver se a velocidade aumentava
-		int i;
-		for(i=20; i--; )
-		{
-			if(!g_thread_create(processaAutomatico, this, TRUE, &error))
-			{	g_printerr ("Failed to create YES thread: %s\n", error->message);
-				return;
-			}
-		}
-		//*/
-
-//*
+		threadAtiva = true;
 		if(!g_thread_create(processaAutomatico, this, TRUE, &error))
-		{	g_printerr ("Failed to create YES thread: %s\n", error->message);
+		{	threadAtiva = false;
+			g_printerr ("Failed to create YES thread: %s\n", error->message);
 			return;
 		}
-//*/
 		updateAll();
 		return;
 	}
-	//pthread_join(out, NULL);
 	processador(); // executa soh uma vez
 	updateAll();
 }
@@ -474,7 +463,7 @@ void Model::processador()
 	ir = mem[pc];
 
 	if(pc > 32767)
-	{ printf("Ultrapassou limite da memoria, coloque um jmp no fim do código\n");
+	{ printf("Memory limit exceeded, put a jmp at the end of the code\n");
 		exit(1);
 	}
 	pc++;
@@ -502,7 +491,7 @@ void Model::processador()
 
     case OUTCHAR:
 			if(reg[ry] > 1199 || reg[ry] < 0)
-			{	cout << "ERRO - tentou escrever na posição da tela: " << reg[ry] << endl;
+			{	cout << "ERROR - tried to write at screen position: " << reg[ry] << endl;
 				break;
 			}
 
